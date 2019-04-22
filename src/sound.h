@@ -50,4 +50,14 @@ void fm_disable_rhythm();
 void fm_rhythm_on(unsigned char type);
 void fm_rhythm_off(unsigned char type);
 
+// RAD function defs
+extern unsigned int rad_init(unsigned char* data_ptr);
+extern void rad_end();
+extern void rad_playback();
+extern void rad_set_usercallback(void (*funcptr)(unsigned char, unsigned char));
+extern void rad_set_endcallback(void (*funcptr)(void));
+
+unsigned char* rad_load(const char* filename);
+void rad_free(unsigned char* modfile);
+
 #endif

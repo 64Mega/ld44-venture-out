@@ -3,11 +3,11 @@
 %ifndef GFKBD_ASM
 %define GFKBD_ASM
 
-%include "gf32\gfutil.asm"
+%include "src\util.asm"
 
 SEGMENT _DATA PUBLIC ALIGN=4 USE32 class=DATA
-    GLOBAL _gfkbd_scanbuffer
-    _gfkbd_scanbuffer resb 128
+    GLOBAL _kbd_scanbuffer
+    _kbd_scanbuffer resb 128
 
     old_int_seg resw 1
     old_int_off resd 1
@@ -19,8 +19,8 @@ SEGMENT _TEXT PUBLIC ALIGN=4 USE32 class=CODE
 
 GROUP DGROUP _DATA
 
-GLOBAL _gfkbd_install
-_gfkbd_install: FUNCTION
+GLOBAL _kbd_install
+_kbd_install: FUNCTION
     push eax
     push ebx
     push ds
@@ -46,8 +46,8 @@ _gfkbd_install: FUNCTION
     pop eax
 ENDFUNCTION
 
-GLOBAL _gfkbd_uninstall
-_gfkbd_uninstall: FUNCTION
+GLOBAL _kbd_uninstall
+_kbd_uninstall: FUNCTION
     push eax
     push ebx
     push edx
@@ -95,11 +95,11 @@ kbd_handler:
     cmp al, 128
     jnb .key_release
 .key_press:
-    mov byte [_gfkbd_scanbuffer+eax], 1
+    mov byte [_kbd_scanbuffer+eax], 1
     jmp .key_end
 .key_release:
     and al, 127
-    mov byte [_gfkbd_scanbuffer+eax], 0
+    mov byte [_kbd_scanbuffer+eax], 0
 .key_end:
 
     pop ds

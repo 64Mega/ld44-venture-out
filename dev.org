@@ -1,0 +1,7 @@
+Dev notes and todos
+
+* List of Todo items
+** TODO Rewrite VGA Mode X routines in a separate module
+*** Need to write versions of the routines that can write to a buffer
+*** Need to add a buffer blitter
+*** Look into creating a VRAM->VRAM copier

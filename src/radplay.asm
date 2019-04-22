@@ -4,7 +4,7 @@
 %ifndef RADPLAY_ASM
 %define RADPLAY_ASM
 
-%include "util.asm"
+%include "src\util.asm"
 
 SEGMENT _DATA PUBLIC ALIGN=4 USE32 class=DATA
 ;; Some data definitions
@@ -57,6 +57,12 @@ OrderPos dw 0
 InstPtrs times 31 dw 0
 ModSeg dw 0
 
+;; Special user-callback
+callback_user_effect dd 0
+
+;; Callback that triggers when the song reaches its 'end' (Or loops)
+callback_song_end dd 0
+
 ;; Record of certain adlib register values
 old43               times 9 db 0
 oldA0               times 9 db 0
@@ -71,17 +77,43 @@ toneSlide           resb 9
 portSlide           resb 9
 volSlide            resb 9
 
-RadVolume db 0
+RadVolume db 63
 
 SEGMENT _TEXT PUBLIC ALIGN=4 USE32 class=CODE
 GROUP DGROUP _DATA
 
 ;; Global symbols
+GLOBAL _rad_set_usercallback
+GLOBAL _rad_set_endcallback
 GLOBAL _rad_init
 GLOBAL _rad_playback
 GLOBAL _rad_end
 GLOBAL _rad_get_num_orders
 
+; #############################################################################################
+; void rad_set_usercallback(funcptr* callback)
+; =--------------------------------------=
+; Call this to set up a callback to be invoked on certain effects. 
+; Must accept two arguments: char* command, char* value
+; #############################################################################################
+_rad_set_usercallback: FUNCTION
+    %arg func_ptr:dword
+
+    mov eax, dword [func_ptr]
+    mov dword [callback_user_effect], eax
+ENDFUNCTION
+
+; #############################################################################################
+; void rad_set_endcallback(funcptr* callback)
+; =--------------------------------------=
+; Sets up a callback that triggers when the song reaches its end or loops.
+; #############################################################################################
+_rad_set_endcallback: FUNCTION
+    %arg func_ptr:dword
+
+    mov eax, dword [func_ptr]
+    mov dword [callback_song_end], eax
+ENDFUNCTION
 
 ;##############################################################################################
 ; unsigned int rad_init(unsigned char* data_ptr)
@@ -357,6 +389,12 @@ NextPattern:
     jb .ld
     xor ebx, ebx
 
+    ;; Song loops here, call the song_end callback if it's set
+    cmp dword [callback_song_end], 0
+    mov eax, dword [callback_song_end]
+    jz .ld
+    call eax
+
     .ld: mov word [OrderPos], bx        
         mov si, word [OrderList]
         add esi, edi
@@ -600,28 +638,43 @@ PlayNote:
     mov byte [mod_speed], ch
     jmp .lx
 
+; User Callback
+; =-----------=
+.EffectUser:       
+    cmp dword [callback_user_effect], 0
+    jz .lx
+    push eax
+    mov eax, dword [callback_user_effect]
+    push ecx
+    push ebx
+    call eax
+    pop ebx
+    pop ecx
+    pop eax
+    jmp .lx
+
 ;;##############################################################################################
 ;; EFFECT JUMP TABLE
 ;; =---------------=
 ;; Effects can be directly jumped to using this handy jump table. Effect 0x03 will jump to the code
 ;; pointed at by entry 3.
 ;;##############################################################################################
-Effects     dd PlayNote.lx
-            dd PlayNote.EffectPortUp
-            dd PlayNote.EffectPortDown
-            dd PlayNote.EffectToneSlide
-            dd PlayNote.lx ;; An lx is a no-op.
-            dd PlayNote.EffectToneVolSlide
-            dd PlayNote.lx
-            dd PlayNote.lx
-            dd PlayNote.lx
-            dd PlayNote.lx
-            dd PlayNote.EffectVolSlide
-            dd PlayNote.lx
-            dd PlayNote.EffectSetVolume
-            dd PlayNote.EffectJumpToLine
-            dd PlayNote.lx
-            dd PlayNote.EffectSetSpeed
+Effects     dd PlayNote.lx                      ; 0xx
+            dd PlayNote.EffectPortUp            ; 1xx
+            dd PlayNote.EffectPortDown          ; 2xx
+            dd PlayNote.EffectToneSlide         ; 3xx
+            dd PlayNote.lx ;; An lx is a no-op. ; 4xx
+            dd PlayNote.EffectToneVolSlide      ; 5xx
+            dd PlayNote.lx                      ; 6xx
+            dd PlayNote.lx                      ; 7xx
+            dd PlayNote.lx                      ; 8xx
+            dd PlayNote.lx                      ; 9xx
+            dd PlayNote.EffectVolSlide          ; Axx
+            dd PlayNote.lx                      ; Bxx
+            dd PlayNote.EffectSetVolume         ; Cxx
+            dd PlayNote.EffectJumpToLine        ; Dxx
+            dd PlayNote.lx                      ; Exx
+            dd PlayNote.EffectSetSpeed          ; Fxx
 
 ;##############################################################################################
 ; INTERNAL: UpdateNotes
@@ -872,7 +925,9 @@ SetVolume:
     ret
 
 ;##############################################################################################
-; EXTERNAL: void SetRADVolume(unsigned char volume)
+; EXTERNAL: void rad_set_volume(unsigned char vol)
+; =----------------------------------------------=
+; Set volume in a range of 0..63
 ;##############################################################################################
 GLOBAL _SetRADVolume
 _SetRADVolume: FUNCTION

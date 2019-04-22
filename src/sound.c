@@ -1,5 +1,8 @@
 #include "sound.h"
+#include <stdio.h>
 #include <i86.h>
+#include <malloc.h>
+#include <string.h>
 #include <conio.h>
 #include <dos.h>
 
@@ -112,4 +115,33 @@ void fm_rhythm_on(unsigned char type) {
 
 void fm_rhythm_off(unsigned char type) {
     fm_write_reg(0xBD, 0xE0 & (~type));
+}
+
+// Functions to load/free RAD modules (Just raw byte arrays)
+unsigned char* rad_load(const char* filename) {
+    FILE *fp;
+    unsigned char* modfile;
+    unsigned long file_len, i, j;
+
+    fp = fopen(filename, "rb");
+    if(!fp) {        
+        printf("Couldn't load %s!\n", filename);
+        return 0;        
+    }
+
+    fseek(fp, 0, SEEK_END);
+    file_len = ftell(fp);
+    rewind(fp);
+
+    modfile = (unsigned char*) malloc(file_len+1);
+    fread(modfile, 1, file_len, fp);
+    modfile[file_len] = 0;
+
+    return modfile;
+}
+
+void rad_free(unsigned char* modfile) {
+    if(modfile) {
+        free(modfile);
+    }
 }
