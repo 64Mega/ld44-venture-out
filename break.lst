@@ -1,0 +1,4 @@
+# Breakout Main Resource List
+GAME PALETTE PALETTE rawimg/palette.pcx
+GAME SPRITE FRAME1_TOP rawimg/bo/topbar.pcx
+GAME SPRITE FULLFRAME rawimg/bo/fullfram.pcx

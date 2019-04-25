@@ -301,13 +301,13 @@ _modex_write_pixel_buffer: FUNCTION
     mov [eax+ecx], dl
 ENDFUNCTION
 
-;; void modex_blitbuffer(unsigned char* buffer)
+;; void modex_blitbuffer(unsigned char* buffer, unsigned long yoffset)
 ;; =------------------------------------------=
 ;; Copies an in-memory buffer to VRAM
 ;; =------------------------------------------=
 GLOBAL _modex_blitbuffer
 _modex_blitbuffer: FUNCTION
-    %arg buffer:dword
+    %arg buffer:dword, yoffset:dword
 
     push esi
     pop edi
@@ -316,6 +316,7 @@ _modex_blitbuffer: FUNCTION
 
     mov edi, VGA_START
     add edi, dword [_modexvar_active_start]
+    add edi, dword [yoffset]
 
     push esi
         mov si, 0    
@@ -785,8 +786,8 @@ ENDFUNCTION
 ;; =-----------------------------------------------------------------------------------=
 ;; Sets a palette range. Expects an abridged palette array to be passed in.
 ;; =-----------------------------------------------------------------------------------=
-GLOBAL _modex_pal_setrange
-_modex_pal_setrange: FUNCTION
+GLOBAL _modex_palette_setrange
+_modex_palette_setrange: FUNCTION
     %arg palette:dword, start:word, end:word
     push esi    
 

@@ -8,6 +8,7 @@
 #include "src\sound.h"
 #include "src\timer.h"
 #include "src\kbd.h"
+#include "src\ipack.h"
 
 unsigned char* VGA_START = (unsigned char*) 0xA0000;
 
@@ -67,7 +68,7 @@ void song_end_event(void) {
     endevents++;
 }
 
-void pal_rotate_right(unsigned char* pal, unsigned int start, unsigned char end) {
+void pal_rotate_right(unsigned char* pal, unsigned int start, unsigned int end) {
     unsigned char last[3];
     int i;
     unsigned char num = (end-start)-1;
@@ -93,6 +94,10 @@ void pal_rotate_right(unsigned char* pal, unsigned int start, unsigned char end)
 }
 
 unsigned char* active_palette = 0;
+
+PAKFILE* breakpak;
+PAKCHUNK spr_topframe;
+PAKCHUNK pal_main;
 
 void main(void) {
     unsigned char* buffer = (unsigned char*) malloc(MODEX_BUFFER_SIZE);    
@@ -161,6 +166,23 @@ void main(void) {
 
     rad_init(testmod);
 
+    // Load a PAK
+    breakpak = pak_load("break.pak");
+    spr_topframe = pak_getchunk(breakpak, "FULLFRAME");
+    pal_main = pak_getchunk(breakpak, "PALETTE");
+
+    if(!spr_topframe.base) {
+        printf("Couldn't load FRAME1_TOP!\n");
+        getch();
+    }
+
+    if(!pal_main.base) {
+        printf("Couldn't load PALETTE!\n");
+        getch();
+    } else {
+        memcpy(active_palette, pal_main.base, 768);
+    }
+
     modex_init();                    
 
     modex_set_palette(active_palette);
@@ -199,6 +221,15 @@ void main(void) {
                 sx = 0; dx = 1;
             }                        
 
+            if(myticks % 4 == 0 && fadephase == 0) {
+                // Rotate palette ranges
+                pal_rotate_right(active_palette, 233, 240);
+                pal_rotate_right(active_palette, 249, 255);
+                pal_rotate_right(active_palette, 229, 232);
+                //modex_palette_setrange(active_palette+(233*3), 233, 239);
+                modex_set_palette(active_palette);
+            }
+
             if(endflags != endevents) {
                 endflags = endevents;
                 if(fadephase == 0) {
@@ -223,7 +254,7 @@ void main(void) {
                 }
             } else
             if(fadephase == 2) {
-                if(modex_palette_fadein(active_palette, palb, 1) == 1) {
+                if(modex_palette_fadein(active_palette, pal_main.base, 1) == 1) {
                     fadephase = 0;
                 }
             }            
@@ -235,18 +266,11 @@ void main(void) {
 
         // Draw to offscreen buffer       1 
         
-        modex_blitsprite_buffer(sx, sy, 16, 16, testimg, buffer);           
-        modex_blitsprite_buffer_trans(sx, sy-32, 16, 16, testimg, buffer);
-        //modex_write_pixel_buffer(sx, sy, 0x0E, buffer);
-        modex_blitsprite_buffer(1, 1, 16, 16, testimg, buffer);                
-        modex_write_pixel_buffer(0, 0, 0x0E, buffer);
-        //modex_blitsprite_buffer(33, 0, 16, 16, testimg, buffer);                
-        //modex_blitsprite_buffer(1, 32, 16, 16, testimg, buffer);                
-        //modex_blitsprite_buffer(17, 16, 16, 16, testimg, buffer);                
-        //modex_blitsprite_buffer(33, 32, 16, 16, testimg, buffer);          
-        modex_blitbuffer(buffer);
-        modex_blitsprite(sx, sy-64, 16, 16, testimg);
-        modex_blitsprite_trans(sx, sy-80, 16, 16, testimg);
+        //modex_blitsprite_buffer(sx, sy, 16, 16, testimg, buffer);           
+        modex_blitsprite_buffer_trans(0, 0, 320, 240, spr_topframe.base, buffer);
+        //modex_blitsprite_buffer_trans(sx, sy-32, 16, 16, testimg, buffer);
+        modex_blitbuffer(buffer, 0);
+        //modex_blitbuffer(buffer+0xFFFF,0xFFFF);
 
         modex_wait_retrace();
         if(active == 0) {
@@ -264,6 +288,8 @@ void main(void) {
     kbd_uninstall();
     
     modex_restore();
+
+    pak_unload(breakpak);
 
     rad_end();
     rad_free(testmod);
