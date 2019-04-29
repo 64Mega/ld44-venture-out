@@ -1,0 +1,150 @@
+Beginning engine setup
+Loading game pak
+Entering Mode X.
+Installing keyboard hooks
+Installing timer hooks
+Setting game callbacks
+Font initialized!
+Entering Main Loop!
+We're lagging by 2 ticks!
+We're lagging by 4 ticks!
+We're lagging by 8 ticks!
+We're lagging by 2 ticks!
+We're lagging by 2 ticks!
+[s_game//Draw] Game not initialized yet, initializing.
+Initializing Game State!
+PAK OK
+Spawning a type 0 cliff @ 16 20
+Spawning a type 0 cliff @ 32 20
+Spawning a type 0 cliff @ 48 20
+Spawning a type 0 cliff @ 64 20
+Spawning a type 0 cliff @ 80 20
+Spawning a type 0 cliff @ 96 20
+Spawning a type 0 cliff @ 112 20
+Spawning a type 0 cliff @ 128 20
+Spawning a type 0 cliff @ 144 20
+Spawning a type 0 cliff @ 160 20
+Spawning a type 0 cliff @ 176 20
+Spawning a type 0 cliff @ 192 20
+Spawning a type 0 cliff @ 208 20
+Spawning a type 0 cliff @ 224 20
+Spawning a type 0 cliff @ 240 20
+Spawning a type 0 cliff @ 256 20
+Spawning a type 0 cliff @ 272 20
+Spawning a type 0 cliff @ 288 20
+Spawning a type 1 cliff @ 16 36
+Spawning a type 1 cliff @ 32 36
+Spawning a type 1 cliff @ 48 36
+Spawning a type 1 cliff @ 64 36
+Spawning a type 1 cliff @ 80 36
+Spawning a type 1 cliff @ 96 36
+Spawning a type 1 cliff @ 112 36
+Spawning a type 1 cliff @ 128 36
+Spawning a type 3 cliff @ 144 36
+Spawning a type 1 cliff @ 160 36
+Spawning a type 1 cliff @ 176 36
+Spawning a type 1 cliff @ 192 36
+Spawning a type 1 cliff @ 208 36
+Spawning a type 1 cliff @ 224 36
+Spawning a type 1 cliff @ 240 36
+Spawning a type 1 cliff @ 256 36
+Spawning a type 1 cliff @ 272 36
+Spawning a type 1 cliff @ 288 36
+Spawning a bush @ 16 52
+Spawning a bush @ 32 52
+Spawning a rock @ 48 52
+Spawning a bush @ 112 52
+Spawning a bush @ 128 52
+Spawning a bush @ 160 52
+Spawning a bush @ 176 52
+Spawning a rock @ 240 52
+Spawning a bush @ 16 68
+Spawning a bush @ 32 68
+Spawning a bush @ 112 68
+Spawning a bush @ 128 68
+Spawning a bush @ 160 68
+Spawning a bush @ 176 68
+Spawning a rock @ 240 68
+Spawning a chest @ 272 68
+Spawning a bush @ 176 84
+Spawning a bush @ 192 84
+Spawning a rock @ 240 84
+Spawning a bush @ 16 100
+Spawning a bush @ 32 100
+Spawning a bush @ 48 100
+Spawning a bush @ 64 100
+Spawning a bush @ 176 100
+Spawning a bush @ 192 100
+Spawning a bush @ 208 100
+Spawning a bush @ 224 100
+Spawning a rock @ 240 100
+Spawning a rock @ 256 100
+Spawning a rock @ 272 100
+Spawning a rock @ 288 100
+Spawning a bush @ 16 116
+Spawning a bush @ 32 116
+Spawning a bush @ 48 116
+Spawning a bush @ 80 116
+Spawning a bush @ 96 116
+Spawning a bush @ 112 116
+Spawning a bush @ 128 116
+Spawning a bush @ 144 116
+Spawning a bush @ 160 116
+Spawning a bush @ 176 116
+Spawning a bush @ 192 116
+Spawning a bush @ 208 116
+Spawning a bush @ 224 116
+Spawning a bush @ 80 132
+Spawning a bush @ 96 132
+Spawning a bush @ 112 132
+Spawning a bush @ 128 132
+Spawning a bush @ 144 132
+Spawning a bush @ 160 132
+Spawning a bush @ 176 132
+Spawning a bush @ 192 132
+Spawning a bush @ 208 132
+Game State initialized!
+Spawning a type 0 cliff @ 16 20
+Spawning a type 0 cliff @ 32 20
+Spawning a type 0 cliff @ 48 20
+Spawning a type 0 cliff @ 64 20
+Spawning a type 0 cliff @ 80 20
+Spawning a type 0 cliff @ 96 20
+Spawning a type 0 cliff @ 112 20
+Spawning a type 0 cliff @ 128 20
+Spawning a type 0 cliff @ 144 20
+Spawning a type 0 cliff @ 160 20
+Spawning a type 0 cliff @ 176 20
+Spawning a type 0 cliff @ 192 20
+Spawning a type 0 cliff @ 208 20
+Spawning a type 0 cliff @ 224 20
+Spawning a type 0 cliff @ 240 20
+Spawning a type 0 cliff @ 256 20
+Spawning a type 0 cliff @ 272 20
+Spawning a type 0 cliff @ 288 20
+Spawning a type 0 cliff @ 16 36
+Spawning a type 0 cliff @ 32 36
+Spawning a type 0 cliff @ 48 36
+Spawning a type 0 cliff @ 64 36
+Spawning a type 0 cliff @ 80 36
+Spawning a type 0 cliff @ 96 36
+Spawning a type 0 cliff @ 112 36
+Spawning a type 0 cliff @ 128 36
+Spawning a type 0 cliff @ 144 36
+Spawning a type 0 cliff @ 160 36
+Spawning a type 0 cliff @ 176 36
+Spawning a type 0 cliff @ 192 36
+Spawning a type 0 cliff @ 208 36
+Spawning a type 0 cliff @ 224 36
+Spawning a type 0 cliff @ 240 36
+Spawning a type 0 cliff @ 256 36
+Spawning a type 0 cliff @ 272 36
+Spawning a type 0 cliff @ 288 36
+We're lagging by 2 ticks!
+We're lagging by 2 ticks!
+Beginning engine shutdown and cleanup
+RADPLAY stopped
+Timer restored
+Keyboard Handler restored
+Video mode restored
+Game pak unloaded

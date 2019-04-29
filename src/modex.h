@@ -52,7 +52,7 @@ extern void modex_write_pixel_buffer(unsigned int x, unsigned int y, unsigned in
 
 // This function blits an entire offscreen buffer to VRAM
 // and should be pretty fast.
-extern void modex_blitbuffer(unsigned char* buffer, unsigned long offset);
+extern void modex_blitbuffer(unsigned char* buffer, unsigned long offset, unsigned long length);
 
 // This function blits a sprite with /no transparency/ to
 // VRAM directly.

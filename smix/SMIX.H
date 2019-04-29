@@ -2,6 +2,9 @@
 
 /* �� SMIX.H �������������������������������������������������������������� */
 
+#ifndef SMIX_H
+#define SMIX_H
+
 #define TRUE  1
 #define FALSE 0
 
@@ -13,6 +16,8 @@ typedef struct
     signed   char *soundptr;
     unsigned long soundsize;
   } SOUND;
+
+// typedef struct SOUND_T SOUND;
 
 int  init_sb(int baseio, int irq, int dma, int dma16);
   /* Initializes control parameters, resets DSP and installs int. handler   */
@@ -120,3 +125,4 @@ extern int   sixteenbit;
 
 /* ������������������������������������������������������������������������ */
 
+#endif

@@ -54,6 +54,7 @@ void fm_rhythm_off(unsigned char type);
 extern unsigned int rad_init(unsigned char* data_ptr);
 extern void rad_end();
 extern void rad_playback();
+extern void rad_set_volume(unsigned char volume);
 extern void rad_set_usercallback(void (*funcptr)(unsigned char, unsigned char));
 extern void rad_set_endcallback(void (*funcptr)(void));
 

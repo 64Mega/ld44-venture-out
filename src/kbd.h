@@ -8,7 +8,7 @@ extern void kbd_install();
 extern void kbd_uninstall();
 
 extern volatile unsigned char kbd_scanbuffer[];
-volatile unsigned char kbd_scanbuffer_c[];
+extern volatile unsigned char kbd_scanbuffer_c[];
 
 #define MAX_KEYS 128
 

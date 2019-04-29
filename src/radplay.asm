@@ -929,8 +929,8 @@ SetVolume:
 ; =----------------------------------------------=
 ; Set volume in a range of 0..63
 ;##############################################################################################
-GLOBAL _SetRADVolume
-_SetRADVolume: FUNCTION
+GLOBAL _rad_set_volume
+_rad_set_volume: FUNCTION
     %arg volume:byte
     mov al, byte [volume]
     mov byte [RadVolume], al

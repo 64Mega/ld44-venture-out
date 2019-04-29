@@ -1,7 +1,70 @@
-Dev notes and todos
+LUDUM DARE 44 - Todo Items and Notes
 
 * List of Todo items
-** TODO Rewrite VGA Mode X routines in a separate module
-*** Need to write versions of the routines that can write to a buffer
-*** Need to add a buffer blitter
-*** Look into creating a VRAM->VRAM copier
+    ** Prep for LD
+        *** DONE Create branch for LD dev
+        *** DONE Test compilation of LD branch
+        *** DONE Implement simple game loop/timer.
+    ** During LD
+        *** DONE Create a moving paddle
+        *** DONE Create a moving ball that bounces on the 16 pixel outer boundary
+        *** DONE Create a simple font (Easier than reading the BIOS font in this case)
+        *** DONE Create global Data structure with function pointers to update/render callbacks        
+    ** Post-LD Fixes/Ports
+* List of Notes & Reminders
+    ** Bugs Discovered
+    *** MAJOR: Buffer truncation (FIXED)
+        The off-screen buffer cannot be fully represented as a single buffer due to it having a
+        limitation in its malloc() implementation where the 'size' has to be 64KB or less. The
+        full Mode X buffer takes 72KB. 
+        SOLUTION: Cheat by directly drawing the 40 pixel high HUD to VRAM. Since the HUD is
+        mostly static, it's performant enough for the time I have to work with.
+
+        UPDATE: So, I wasted a bit of time reading the Watcom documentation and digging around a bit.
+        As a cautionary tale about being too sure of oneself I'll write this and leave my prior assumption
+        intact: It turns out I was using an incorrect number in my Assembly file.
+        See, I calculated the number of bytes a plane uses to be 320x240 / 4, which is correct. I did the
+        calculation in Windows Calculator, and saw a value of "0x4800". So that's what I plugged into my
+        .EQU section in my assembly module.
+        So later on, when I wanted the decimal equivalent of "0x4800", I plugged that value into Calc, and
+        lo-and-behold it was only 17K... but 320x240 / 4 should be 19K or so.
+        It turns out that the "8" I saw when I did the calculation was actually a "B". The font Microsoft
+        decided to use in the Win 10 Calculator renders the two nearly identically on my monitor.
+        Moral of the story: Double check your hex. Also don't use Windows calculator, use the Python REPL or
+        something else that uses a readable font.
+        Thanks to this discovery I was able to remove the second off-screen buffer blit and things are a lot
+        smoother now. I also have more screen-space to work with, and can comfortably shift the HUD to the
+        top of the screen.
+    *** MAJOR: Ghosting (FIXED)
+        A bit of a weird one: When drawing a sprite within the region of 192,84 and 224,116, one of the bit-planes randomly
+        redirects to the lower-right side of the screen. This /seems/ to be caused by the HUD-draw call, but even if that's removed,
+        it causes the right-most 32 pixels of the screen to "blank out" on one plane at a lower height.
+        The problem is, potentially, something to do with overflow: 16-bit pointers max out at 65536 bytes. The off-screen buffer
+        is 76800 bytes. That being said, it's odd that only a tiny portion of one plane is affected by this, but nothing else is.
+        Doesn't matter if I disable screen clearing, render only one thing, render a bunch of things, etc, it remains mostly consistent
+        with the two mentioned regions.
+        I've tried some tinkering around in the modex_blitsprite_buffer method, and I'm taking a wild shot that the weird offset
+        is a carry bug that I'm missing, but it's a bit too hard to rewrite that entire procedure during a jam, so I'm going to leave it
+        and just give a warning that there are some spooky ghost pixels on the screen sometimes.
+        
+        UPDATE: Against my better judgement took another dive into modex.asm, and I came out victorious.
+        I was right in that it was a carry/overflow error. In the .rowLoop subsection in both
+        versions of modex_blitsprite_buffer, the value of bx is moved into cx, then after the row is
+        copied, di is subtracted by bx. The issue is that this forces uses of the 16-bit sub instruction.
+        The 'solution' here is to use the entire value of ebx and subtract it from edi,
+        which uses the 32-bit instruction. Otherwise, at certain very specific values, the number will just
+        underflow and jump to a higher value.
+        The lesson here is to always check whether an instruction operates solely on a 16-bit register or not
+        before assuming anything. Also, miraculously, it only took about two minutes after I wrote the initial
+        bug down before I discovered the solution. Time saved, ghosts busted! \o/
+* Info for other developers
+  Hi! Welcome to the ExoEngine, a deep-dive into DOS game development I began in early 2018.
+  I spent most of that time writing and rewriting graphics routines, working down from C code
+  to assembly, from Real Mode to Protected Mode, and from not even wanting to consider sound
+  to having working music and digitized sounds (Via Reality AdLib Tracker's player code, ported
+  over to 32-bit Protected Mode, and SMIX, an old free library (Free for non-commercial use)).
+
+  I tried to keep my code commented, especially the nuts-and-bolts, but knowing a bit about the
+  platform and x86 assembly will be of some use if you want to read the code.
+  I make no guarantees for the actual game code. It's Ludum Dare, and I know for a fact that
+  spaghettification sets in around the halfway mark, if not sooner.  

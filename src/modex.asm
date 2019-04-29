@@ -13,7 +13,7 @@ SEGMENT _DATA PUBLIC ALIGN=4 USE32 class=DATA
 
     VGA_START       equ 0xA0000
 
-    PAGE_SIZE       equ 0x4800
+    PAGE_SIZE       equ 0x4B00
     PLANE_SIZE      equ (PAGE_SIZE >> 2)
 
     MAP_MASK        equ 0x02
@@ -307,7 +307,7 @@ ENDFUNCTION
 ;; =------------------------------------------=
 GLOBAL _modex_blitbuffer
 _modex_blitbuffer: FUNCTION
-    %arg buffer:dword, yoffset:dword
+    %arg buffer:dword, yoffset:dword, length:dword
 
     push esi
     pop edi
@@ -323,7 +323,7 @@ _modex_blitbuffer: FUNCTION
         call SwitchPlane
     pop esi
 
-    mov cx, PAGE_SIZE
+    mov ecx, PAGE_SIZE
     rep movsb    
 
     sub edi, PAGE_SIZE
@@ -332,7 +332,7 @@ _modex_blitbuffer: FUNCTION
         call SwitchPlane
     pop esi
     
-    mov cx, PAGE_SIZE
+    mov ecx, PAGE_SIZE
     rep movsb
 
     sub edi, PAGE_SIZE
@@ -341,7 +341,7 @@ _modex_blitbuffer: FUNCTION
         call SwitchPlane
     pop esi
     
-    mov cx, PAGE_SIZE
+    mov ecx, PAGE_SIZE
     rep movsb
 
     sub edi, PAGE_SIZE
@@ -350,7 +350,7 @@ _modex_blitbuffer: FUNCTION
         call SwitchPlane
     pop esi
     
-    mov cx, PAGE_SIZE
+    mov ecx, PAGE_SIZE
     rep movsb
 
     pop edi
@@ -454,7 +454,7 @@ _modex_blitsprite_buffer: FUNCTION
         cmp ah, 0x04
         jb .noNudge
         .nudge:
-            inc bx
+            inc bx            
         .noNudge:
 
         xor eax, eax
@@ -474,10 +474,14 @@ _modex_blitsprite_buffer: FUNCTION
 
         mov dx, word [height]
         .rowLoop:
+            xor ebx, ebx
+            mov bx, word [width]
+            shr bx, 1
+            shr bx, 1
             mov cx, bx ;; Set count to total plane width
             rep movsb
             add edi, 80 ;; Add a screen width to jump down to next row
-            sub di, bx ;; Subtract a row width to position us back at the starting X value
+            sub edi, ebx ;; Subtract a row width to position us back at the starting X value
             dec dx
             jnz .rowLoop
 
@@ -512,8 +516,11 @@ _modex_blitsprite_trans: FUNCTION
 
     .planeLoop:
         push esi
+        push eax
+        mov ah, 0x00
         mov si, ax
         call SwitchPlane
+        pop eax
         pop esi
 
         xor edx, edx
@@ -584,7 +591,7 @@ _modex_blitsprite_buffer_trans: FUNCTION
     mov ax, 0 ;; Current plane
     mov cx, word [x]
     and cx, 0x03
-    mov ah, cl 
+    mov ah, cl    
     
     .planeLoop:
         xor edx, edx      
@@ -596,22 +603,22 @@ _modex_blitsprite_buffer_trans: FUNCTION
         xor ebx, ebx        
         mov bl, ah
         and bx, 0x03
-        imul bx, PAGE_SIZE
-
+        imul ebx, PAGE_SIZE
+        
         cmp ah, 0x04
         jb .noNudge
         .nudge:
-            inc bx
+            inc ebx
         .noNudge:
 
-        xor eax, eax
+        xor eax, eax        
         mov edi, ebx
         mov ax, word [y]
-        imul ax, SCREEN_WIDTH
+        imul eax, SCREEN_WIDTH
         mov bx, word [x]
         shr bx, 1
         shr bx, 1
-        add ax, bx
+        add eax, ebx
         add edi, dword [bufptr]
         add edi, eax
 
@@ -635,7 +642,7 @@ _modex_blitsprite_buffer_trans: FUNCTION
                 jnz .pixelLoop
             
             add edi, SCREEN_WIDTH ;; Add a screen width to jump down to next row
-            sub di, bx ;; Subtract a row width to position us back at the starting X value
+            sub edi, ebx ;; Subtract a row width to position us back at the starting X value
             dec dx
             jnz .rowLoop
         pop eax
@@ -645,16 +652,18 @@ _modex_blitsprite_buffer_trans: FUNCTION
         push ebx
         push ecx
             xor ecx, ecx
+            xor ebx, ebx
             mov cx, ax
             inc cx
-            imul cx, PAGE_SIZE
+            imul ecx, PAGE_SIZE
 
             xor eax, eax
             mov ax, word [y]
-            imul ax, 80
+            imul eax, 80
             mov bx, word [x]
-            shr bx, 2
-            add ax, bx        
+            shr bx, 1
+            shr bx, 1
+            add eax, ebx        
             mov edi, dword [buffer]
             add edi, ebx
             add edi, ecx            
@@ -662,7 +671,7 @@ _modex_blitsprite_buffer_trans: FUNCTION
         pop ebx
         pop eax
 
-        inc ah        
+        inc ah                
         inc al ;; Increment plane number
         cmp al, 4 ;; Last plane?        
         jb .planeLoop ;; If not, do the next plane
