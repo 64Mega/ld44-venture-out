@@ -518,56 +518,11 @@ PlayNote:
     .lb: xor ebx, ebx
         mov bl, dh
 
-        ;jmp [Effects+ebx]
-        ; Manually cmp/jmp-ing because NASM's labels are being weird
-        cmp bl, 0x00
-        je .lx
-
-        cmp bl, 0x01
-        je .EffectJumpToLine
-
-        cmp bl, 0x02
-        je .EffectPortDown
-
-        cmp bl, 0x03
-        je .EffectPortUp
-
-        cmp bl, 0x04
-        je .lx
-
-        cmp bl, 0x05
-        je .EffectToneVolSlide
-
-        cmp bl, 0x06
-        je .lx
-
-        cmp bl, 0x07
-        je .lx
-
-        cmp bl, 0x08
-        je .lx
-
-        cmp bl, 0x09
-        je .lx
-
-        cmp bl, 0x0A
-        je .EffectVolSlide
-
-        cmp bl, 0x0B
-        je .lx
-
-        cmp bl, 0x0C
-        je .EffectSetVolume
-
-        cmp bl, 0x0D
-        je .EffectJumpToLine
-
-        cmp bl, 0x0E
-        je .lx
-
-        cmp bl, 0x0F
-        je .EffectSetSpeed
-
+        ;; Fix tested and working - Move jmp table to .rdata and shift 
+        ;; offset to dword width
+        shl bl, 2
+        jmp [Effects+ebx]
+        
     .lx: clc
         pop edi
         ret
@@ -652,29 +607,6 @@ PlayNote:
     pop ecx
     pop eax
     jmp .lx
-
-;;##############################################################################################
-;; EFFECT JUMP TABLE
-;; =---------------=
-;; Effects can be directly jumped to using this handy jump table. Effect 0x03 will jump to the code
-;; pointed at by entry 3.
-;;##############################################################################################
-Effects     dd PlayNote.lx                      ; 0xx
-            dd PlayNote.EffectPortUp            ; 1xx
-            dd PlayNote.EffectPortDown          ; 2xx
-            dd PlayNote.EffectToneSlide         ; 3xx
-            dd PlayNote.lx ;; An lx is a no-op. ; 4xx
-            dd PlayNote.EffectToneVolSlide      ; 5xx
-            dd PlayNote.lx                      ; 6xx
-            dd PlayNote.lx                      ; 7xx
-            dd PlayNote.lx                      ; 8xx
-            dd PlayNote.lx                      ; 9xx
-            dd PlayNote.EffectVolSlide          ; Axx
-            dd PlayNote.lx                      ; Bxx
-            dd PlayNote.EffectSetVolume         ; Cxx
-            dd PlayNote.EffectJumpToLine        ; Dxx
-            dd PlayNote.lx                      ; Exx
-            dd PlayNote.EffectSetSpeed          ; Fxx
 
 ;##############################################################################################
 ; INTERNAL: UpdateNotes
@@ -994,3 +926,27 @@ Adlib:
     pop ax
     ret
 %endif
+
+SECTION .rdata:
+;;##############################################################################################
+;; EFFECT JUMP TABLE
+;; =---------------=
+;; Effects can be directly jumped to using this handy jump table. Effect 0x03 will jump to the code
+;; pointed at by entry 3.
+;;##############################################################################################
+Effects:    dd PlayNote.lx                      ; 0xx
+            dd PlayNote.EffectPortUp            ; 1xx
+            dd PlayNote.EffectPortDown          ; 2xx
+            dd PlayNote.EffectToneSlide         ; 3xx
+            dd PlayNote.lx ;; An lx is a no-op. ; 4xx
+            dd PlayNote.EffectToneVolSlide      ; 5xx
+            dd PlayNote.lx                      ; 6xx
+            dd PlayNote.lx                      ; 7xx
+            dd PlayNote.lx                      ; 8xx
+            dd PlayNote.lx                      ; 9xx
+            dd PlayNote.EffectVolSlide          ; Axx
+            dd PlayNote.lx                      ; Bxx
+            dd PlayNote.EffectSetVolume         ; Cxx
+            dd PlayNote.EffectJumpToLine        ; Dxx
+            dd PlayNote.lx                      ; Exx
+            dd PlayNote.EffectSetSpeed          ; Fxx
